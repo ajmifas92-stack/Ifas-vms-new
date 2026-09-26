@@ -49,7 +49,7 @@ app.MapPost(ApiRoutes.Verify, async (DeviceVerifyRequest req) => {
 
 app.MapPost(ApiRoutes.Discover, async () => {
     // ONVIF WS-Discovery probe. This discovers responding NetworkVideoTransmitters on the LAN.
-    var discovered = new List<object>();
+    var discovered = new List<DiscoveredDevice>();
     using var udp = new UdpClient(AddressFamily.InterNetwork);
     udp.EnableBroadcast = true;
     var msgId = "uuid:" + Guid.NewGuid();
@@ -67,7 +67,7 @@ app.MapPost(ApiRoutes.Discover, async () => {
         var text=Encoding.UTF8.GetString(r.Buffer);
         string? xaddr=null;
         try { xaddr=XDocument.Parse(text).Descendants().FirstOrDefault(x=>x.Name.LocalName=="XAddrs")?.Value; } catch {}
-        discovered.Add(new { Address=r.RemoteEndPoint.Address.ToString(), XAddr=xaddr });
+        discovered.Add(new DiscoveredDevice(r.RemoteEndPoint.Address.ToString(), xaddr));
     }
     return Results.Ok(discovered.DistinctBy(x=>x.Address));
 });
@@ -91,6 +91,7 @@ static async Task<bool> TcpProbe(string host,int port,int timeout) {
         await c.ConnectAsync(host,port,t.Token); return true; } catch { return false; }
 }
 public record DeviceVerifyRequest(string Host,int Port,string? RtspUrl);
+public record DiscoveredDevice(string Address,string? XAddr);
 public sealed class AppState {
     public ConcurrentDictionary<Guid,Camera> Cameras {get;}=new();
     public ConcurrentDictionary<Guid,Nvr> Nvrs {get;}=new();
