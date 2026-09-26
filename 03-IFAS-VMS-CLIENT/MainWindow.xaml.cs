@@ -1,5 +1,7 @@
 using IFAS.VMS.Shared;
 using LibVLCSharp.Shared;
+using VlcMediaPlayer = LibVLCSharp.Shared.MediaPlayer;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,7 +13,7 @@ namespace IFAS.VMS.Client;
 public partial class MainWindow : Window {
     readonly HttpClient http=new(){BaseAddress=new Uri("http://localhost:5180")};
     int rows=2, cols=2;
-    readonly List<MediaPlayer> players=new();
+    readonly List<VlcMediaPlayer> players=new();
     readonly List<Camera> cameras=new();
     public MainWindow(){ InitializeComponent(); Core.Initialize(); Loaded += async(_,_)=>await LoadCameras(); BuildGrid(); }
     async Task LoadCameras(){ try { cameras.Clear(); cameras.AddRange(await http.GetFromJsonAsync<Camera[]>("/api/cameras")??[]); DeviceGrid.ItemsSource=cameras; } catch(Exception ex){ TitleText.Text="Server unavailable: "+ex.Message; } }
@@ -28,6 +30,6 @@ public partial class MainWindow : Window {
     void Camera_Click(object s,RoutedEventArgs e){TitleText.Text="Camera Management — ONVIF / RTSP / Hikvision / Dahua / Generic";} void Nvr_Click(object s,RoutedEventArgs e){TitleText.Text="NVR Management — Discover Channels";} void Storage_Click(object s,RoutedEventArgs e){TitleText.Text="Recording Storage / Schedule / Retention";} 
     void Monitor_Click(object s,RoutedEventArgs e){ var w=new MonitorWindow(); w.Show(); }
     void LiveGrid_Drop(object? sender,DragEventArgs e){ if(e.Data.GetData(typeof(Camera)) is Camera c && sender is Border b){ b.Tag=c; if(b.Child is StackPanel sp && sp.Children[0] is TextBlock t)t.Text=c.Name+" — "+c.RtspUrl; TryPlay(c,b); } }
-    void TryPlay(Camera c,Border b){ try { if(b.Child is not StackPanel sp || sp.Children.Count<2)return; var vv=(LibVLCSharp.WPF.VideoView)sp.Children[1]; var vlc=new LibVLC("--network-caching=800","--rtsp-tcp"); var mp=new MediaPlayer(vlc); players.Add(mp); vv.MediaPlayer=mp; using var media=new Media(vlc,new Uri(c.RtspUrl)); mp.Play(media); } catch { } }
+    void TryPlay(Camera c,Border b){ try { if(b.Child is not StackPanel sp || sp.Children.Count<2)return; var vv=(LibVLCSharp.WPF.VideoView)sp.Children[1]; var vlc=new LibVLC("--network-caching=800","--rtsp-tcp"); var mp=new VlcMediaPlayer(vlc); players.Add(mp); vv.MediaPlayer=mp; using var media=new Media(vlc,new Uri(c.RtspUrl)); mp.Play(media); } catch { } }
 }
 public class MonitorWindow:Window { public MonitorWindow(){Title="IFAS VMS — Extended Monitor";Width=1200;Height=800;Background=Brushes.Black; Content=new TextBlock{Text="Independent IFAS VMS monitor window — assign cameras and layout here.",Foreground=Brushes.White,FontSize=22,Margin=new Thickness(30)};} }
