@@ -1,4 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 <PropertyGroup><OutputType>WinExe</OutputType><TargetFramework>net8.0-windows</TargetFramework><UseWPF>true</UseWPF><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings></PropertyGroup>
-<ItemGroup><ProjectReference Include="..\05-IFAS-VMS-SHARED\IFAS.VMS.Shared.csproj"/><PackageReference Include="LibVLCSharp.WPF" Version="3.9.5"/><PackageReference Include="LibVLCSharp" Version="3.9.5"/></ItemGroup>
+<ItemGroup><ProjectReference Include="..\05-IFAS-VMS-SHARED\IFAS.VMS.Shared.csproj"/><PackageReference Include="LibVLCSharp.WPF" Version="3.9.5"/><PackageReference Include="LibVLCSharp" Version="3.9.5"/><PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.24"/></ItemGroup>
 </Project>
