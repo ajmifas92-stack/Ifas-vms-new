@@ -1,0 +1,46 @@
+name: IFAS VMS Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore IFAS-VMS.sln
+
+      - name: Build
+        run: dotnet build IFAS-VMS.sln -c Release --no-restore
+
+      - name: Test
+        run: dotnet test Tests/IFAS.VMS.Tests.csproj -c Release --no-build
+
+      - name: Publish Server
+        run: dotnet publish 01-IFAS-VMS-SERVER/IFAS.Server.csproj -c Release -r win-x64 --self-contained true -o publish/Server
+
+      - name: Publish Client
+        run: dotnet publish 03-IFAS-VMS-CLIENT/IFAS.VMS.Client.csproj -c Release -r win-x64 --self-contained true -o publish/Client
+
+      - name: Publish Updater
+        run: dotnet publish 08-IFAS-VMS-UPDATER/IFAS.VMS.Updater.csproj -c Release -r win-x64 --self-contained true -o publish/Updater
+
+      - name: Upload published files
+        uses: actions/upload-artifact@v4
+        with:
+          name: IFAS-VMS-PUBLISHED
+          path: publish/
