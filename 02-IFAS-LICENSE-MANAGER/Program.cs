@@ -1,0 +1,11 @@
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using IFAS.VMS.Shared;
+Console.WriteLine("IFAS VMS License Creator");
+var customer=args.Length>0?args[0]:"Customer";
+var max=args.Length>1&&int.TryParse(args[1],out var m)?m:16;
+var days=args.Length>2&&int.TryParse(args[2],out var d)?d:365;
+var info=new LicenseInfo(customer,max,DateTime.UtcNow.AddDays(days),Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory("Licenses"); File.WriteAllText(Path.Combine("Licenses",info.LicenseId+".ifaslic"),JsonSerializer.Serialize(info,new JsonSerializerOptions{WriteIndented=true}));
+Console.WriteLine($"Created license for {customer}: {max} cameras, {days} days.");
