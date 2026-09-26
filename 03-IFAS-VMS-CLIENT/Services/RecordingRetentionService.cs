@@ -1,3 +1,4 @@
+using System.IO;
 namespace IFAS.VMS.Client.Services;
 public sealed class RecordingRetentionService {
  public int DeleteExpired(string root,int retentionDays) {

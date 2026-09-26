@@ -1,3 +1,4 @@
+using System.IO;
 using IFAS.VMS.Shared;
 namespace IFAS.VMS.Client.Services;
 public sealed class RecordingPlaybackService {
